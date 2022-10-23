@@ -1,0 +1,42 @@
+Compiler Construction
+
+
+
+# Basic
+Programming language's source code -> machine code. VD: jcc, gcc
+
+int a; => 3 token(từ tố) int, a và ; là smallest sequence of letter có ý nghĩa trong 1 programming language. Để phân tích ta phải scan code trái phải trên dưới để tách code thành từng đơn vị nhỏ nhất là token.
+
+Compiler có 5 consecutive modules:
+Lexical analysis -> scanner, tokenizer (tách và place token in correct position)
+Syntax analysis -> parser(grammar product) (token sau khi phân tích sẽ đi vào parser, chỉ có 1 unique hợp lệ cho set of input token và cho ra parse tree cũng là only one unique, nếu ra > 1 parse tree báo lỗi)
+Senmatic analysis -> parse tree đi qua thì sẽ check các lỗi senmatic như out of range của mảng, duplicate identifier biến, truyền sai kiểu dữ liệu vào hàm, casting error, undeclare. Đó là các lỗi mà kp syntax mà là về ngữ nghĩa, thường là lỗi warning, khó tìm hơn syntax error.
+Code optimizer
+Code generator -> convert output cái trên ra machine code. 3 cái trên là đặc trưng của compiler còn code generator phụ thuộc vào người sản xuất, cấu hình máy.
+
+KPL(Kyoto Procedure Language) là 1 ngôn ngữ lập trình khá giống pascal. Compiler của nó cũng tên là KPL. Ngôn ngữ đơn giản dùng để học compiler. Cần viết chương trình C làm compiler cho KPL.
+
+Compiler-compiler là compiler generator. Không phải là 1 loại compiler hay intepreter bth. Còn có assembler là thứ convert từ assembly ra machine code thực sự.
+
+Bytecode tương đương với real machine opcode nhưng đúng hơn là compiled instruction trên virtual machine, còn opcode là của real machine. Nó là sự kết hợp của compilation và intepretation.
+Đầu tiên source code của chương trình sẽ được bytecode compiler xử lý thành bytecodes và thông qua bytecode intepreter thông dịch để chạy chương trình. Bytecode intepreter nói tới ở đây là virtual machine runtime xử lý.
+
+
+# Indexer
+VD: báo lỗi ở dòng bnh
+
+VD: city 7 (2,1), (2,13),... => chữ city xuất hiện 7 lần tại các vị trí (hàng,cột)
+Vẫn phải lọc số, bỏ qua mở ngoặc đóng ngoặc và các stopword như at in about...
+
+
+
+# Other
+
+
+
+EraseNow:
+Cách lưu tên nộp bài báo cáo
+NguyenThuHieu_201947616(2).zip
+Nộp kèm Makefile
+
+
