@@ -1,0 +1,14 @@
+Program Example_10: (* Example 9 *)
+Var
+    i: integer
+    str: array (. 10 .) of char;
+    f: float;
+Begin
+    i := i%4;
+    i += 4;
+    i -= 4;
+    i /= 4;
+    i *= 4;
+    str := "Hanoi University of Science and Technology";
+    f := 3.1425 + 2.7158;
+End. (* Example 10 *)

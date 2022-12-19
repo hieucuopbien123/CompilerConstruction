@@ -1,0 +1,76 @@
+Program Example1; (* Example 1 *)
+Const max = 10;
+TYPE T = INTEGER;
+     t1 = array(. 10 .) of integer;
+Var n : Integer;
+    C : CHAR;
+    d : INTEGER;
+    A : ARRAY(.10.) OF T;
+    v2 : Array(. 10 .) of t1;
+
+PROCEDURE INPUT;
+VAR I : INTEGER;
+    TMP : INTEGER;
+BEGIN
+  N := READI;
+  FOR I := 1 TO N DO
+     A(.I.) := READI;
+END;
+
+PROCEDURE HANOI(N:INTEGER; S:INTEGER);
+BEGIN
+  IF  N != 0  THEN
+    BEGIN
+      CALL  HANOI(N-1,S,6-S-Z);
+      I:=I+1;  
+      CALL  WRITELN;
+      CALL  WRITEI(I);
+    END
+END;  (*END OF HANOI*)
+
+FUNCTION SUM : INTEGER;
+const c1 = 'a';
+      c3 = 10;
+type t1 = integer;
+     t2 = array(. 10 .) of t1;
+VAR I: INTEGER;
+    S : INTEGER;
+BEGIN
+    S := 0;
+    I := 1;
+    WHILE I <= N DO
+     BEGIN
+       S := S + A(.I.);
+       I := I + 1;
+     END
+END;
+
+Function F(n : Integer) : Integer;
+  Begin
+    If n = 0 Then F := 1 Else F := N * F (N - 1);
+  End;
+
+Begin
+  CH := 'y';
+  For n := 1 To 7 Do
+    Begin
+      Call WriteLn;
+      Call WriteI( F(i));
+    End;
+
+  FOR  N := 1  TO  4  DO  
+    BEGIN
+      FOR  I:=1  TO  4  DO  
+        CALL  WRITEC(' ');
+      CALL  READC(C);  
+      CALL  WRITEC(C);
+    END;
+  d:=1; 
+  FOR  N:=2  TO  4  DO
+    BEGIN  
+      I:=0;  
+      CALL  HANOI(N,d);  
+      CALL  WRITELN;
+    END
+
+End. (* Example 1 *)

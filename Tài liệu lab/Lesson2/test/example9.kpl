@@ -1,0 +1,12 @@
+Program Example_9: (* Example 9 *)
+Var
+    i: integer
+    str: array (. 10 .) of char;
+Begin
+    i := i%4;
+    i += 4;
+    i -= 4;
+    i /= 4;
+    i *= 4;
+    str := "Hanoi University of Science and Technology";
+End. (* Example 9 *)

@@ -7,22 +7,55 @@ Programming language's source code -> machine code. VD: jcc, gcc
 
 int a; => 3 token(từ tố) int, a và ; là smallest sequence of letter có ý nghĩa trong 1 programming language. Để phân tích ta phải scan code trái phải trên dưới để tách code thành từng đơn vị nhỏ nhất là token.
 
-Compiler có 5 consecutive modules:
-Lexical analysis -> scanner, tokenizer (tách và place token in correct position)
-Syntax analysis -> parser(grammar product) (token sau khi phân tích sẽ đi vào parser, chỉ có 1 unique hợp lệ cho set of input token và cho ra parse tree cũng là only one unique, nếu ra > 1 parse tree báo lỗi)
+Compiler có 5 consecutive modules(tối thiểu):
+Lexical analysis -> scanner, tokenizer (tách(từ preprocessor) và place token in correct position). Cũng có thể nói là nó tách các token ra
+Syntax analysis -> parser(grammar product) (token sau khi phân tích sẽ đi vào parser, chỉ có 1 unique hợp lệ cho set of input token và cho ra parse tree cũng là only one unique, nếu ra > 1 parse tree báo lỗi).
 Senmatic analysis -> parse tree đi qua thì sẽ check các lỗi senmatic như out of range của mảng, duplicate identifier biến, truyền sai kiểu dữ liệu vào hàm, casting error, undeclare. Đó là các lỗi mà kp syntax mà là về ngữ nghĩa, thường là lỗi warning, khó tìm hơn syntax error.
 Code optimizer
 Code generator -> convert output cái trên ra machine code. 3 cái trên là đặc trưng của compiler còn code generator phụ thuộc vào người sản xuất, cấu hình máy.
 
-KPL(Kyoto Procedure Language) là 1 ngôn ngữ lập trình khá giống pascal. Compiler của nó cũng tên là KPL. Ngôn ngữ đơn giản dùng để học compiler. Cần viết chương trình C làm compiler cho KPL.
-
 Compiler-compiler là compiler generator. Không phải là 1 loại compiler hay intepreter bth. Còn có assembler là thứ convert từ assembly ra machine code thực sự.
 
-Bytecode tương đương với real machine opcode nhưng đúng hơn là compiled instruction trên virtual machine, còn opcode là của real machine. Nó là sự kết hợp của compilation và intepretation.
-Đầu tiên source code của chương trình sẽ được bytecode compiler xử lý thành bytecodes và thông qua bytecode intepreter thông dịch để chạy chương trình. Bytecode intepreter nói tới ở đây là virtual machine runtime xử lý.
+Output of a compiler is called object code
+
+-> Tránh nhầm: 
+Programmer -> (Preprocessor)indexer(có thể coi là nằm ngoài bước compile) -> scanner/tokenizer(lexical) -> parser(syntax check tùy vào grammar của ngôn ngữ) -> senmatic analyzer(type check, ngữ nghĩa) -> intermediate code generator -> optimizer -> code generator -> thành assembly (và đi qua assembler thành machine code - ngoài compiler)
+
+Ngoài ra còn có linker để link các thư viện và loader để load ct vào máy tính sau khi thành mã máy
+Còn có mấy cái lạ như profiler, debugger.
+
+-> Bytecode tương đương với real machine opcode nhưng đúng hơn là compiled instruction trên virtual machine, phân biệt với opcode là của real machine. 
+Vì intepreter đọc từng dòng với cơ chế read-eval-print tức đọc từng dòng rồi evaluate rồi in ra rồi lặp lại. Điều này làm analyze nhanh hơn nhưng tốc độ exec chậm hơn. Bytecode là sự kết hợp của compilation và intepretation với ý tưởng xóa bỏ read-eval-print loop của intepretation để cải thiện hiệu suất. Cơ chế:
+source ---bytecode compiler---> bytecodes ---bytecode interpreter<---> VM runtime
+=> Vc compile tạo ra bytecode trước rồi dùng intepreter chạy từng dòng sẽ loại bỏ nhược điểm của 2 cái để vừa compile nhanh, vừa chạy nhanh nhưng máy chạy phải có đúng cái loại VM runtime của nó để chạy. Ứng dụng hỗ trợ gọi là hybrid. Thực tế interpreter implement cái VM và cho nó là 1 phần của compiler, cách này được dùng phổ biến để làm cho compiler độc lập với máy tính, kiểu portability, nếu không thì mỗi khi chạy máy phải hỗ trợ trước VM của nó à.
+
+Tức có 2 phiên bản của intepreter, khi có ai hỏi nó làm gì thì luôn phải phân biệt 2 cái này:
+1) Intepreter độc lập thì: source -> scanner -> parser -> intepreter có thể execute ngay 
+2) Intepreter chạy VM kết hợp với compiler: source -> compiler -> intermediate code -> code đó sẵn sàng chạy bởi VM luôn. VM này là interpreter có thể gắn vào compiler làm portability or tách rời ở máy đích
+
+Mô hình đầy đủ: Source -> preprocessor -> compiler -> assembler/interpreter -> linker+loader -> machine code
+Và toàn bộ các công cụ môn này chỉ liên quan đến khối preprocessor và compiler mà thôi.
+Mỗi cái đều gọi là language processor
+
+A compiler converts the whole of a higher level program code into machine code in one step => đang ý nói compiler bao gồm cả assembler / interpreter
+
+-> Token và lexems
+Tokens là các loại: number, identifier, assign, addition
+Lexemes là instance của tokens: while, if, else, +, .
+
+
+
+# KPL(Kyoto Procedure Language)
+Là 1 ngôn ngữ lập trình khá giống pascal. Compiler của nó cũng tên là KPL. Ngôn ngữ đơn giản dùng để học compiler. Cần viết chương trình C làm compiler cho KPL.
+Mọi ký tự printable đều dùng được cặp '' để biểu diễn single word. VD: ''' bd dấu ' còn ' ' không biểu diễn dâu space vì nó k printable. Dấu . là end program
+
+KPL k có số âm nhưng vẫn có thể gán số âm k vi phạm quy tắc trong cây BNF theo rule 41 KPL Grammar in BNF slide 10 của chapter 4, nên ta phải tự throw exception khi compile nó
+
 
 
 # Indexer
+Là thú làm đầu tiên, trước cả scanner. Công việc của nó cơ bản là tách từ thôi.
+
 VD: báo lỗi ở dòng bnh
 
 VD: city 7 (2,1), (2,13),... => chữ city xuất hiện 7 lần tại các vị trí (hàng,cột)
@@ -30,7 +63,121 @@ Vẫn phải lọc số, bỏ qua mở ngoặc đóng ngoặc và các stopword 
 
 
 
+# Scanner
+State diagram of finite automata(state machine)
+val = 10*val + i ---scanner---> phân loại val(ident), =(assign), 10(tk_number), *(sb_time), +(add), i(ident)
+
+=> Cơ chế tổng quan: Ta thg bỏ qua indexer vì nó k nằm trong compiler, đầu tiên là lexical analysis thực hiện bởi scanner để convert HLL sang chuỗi các token, output tiếp tục send tới parser for syntax analysis check cú pháp xây cây.
+
+-> Các bước: tokenize, bỏ space, bỏ comment(k tính), generate error message nếu có lỗi tính đúng col và row.
+VD: int max(int i); có 7 token: int max ( int i ) ;
+
+
+
+# Parser
+-> Sau bước lexical, parser sẽ làm 2 nhiệm vụ:
+1) Xây parser tree để check syntax cho 1 instruction
+Parser tree chính là expression tree biểu diễn biểu thức đó
+2) Sắp xếp token để check grammar gốc có sai không bằng 2 kiểu: BNF và Syntax diagram (có sẵn của ngôn ngữ) => k gắn với câu lệnh nào mà là chung
+
+BNF dùng 2 symbol là terminal(token của ngôn ngữ) và nonterminals(ký hiệu đặt trong dấu <> mô tả cấu trúc VD <expression>). Nó được gọi là 1 metasyntax dùng để express context free grammar của 1 ngôn ngữ
+=> Có thể xem được BNF của các ngôn ngữ khác.
+
+Context free grammar: dùng để generate string tùy theo ngôn ngữ. 
+Nó chứa tập hợp terminal và non terminal symbol, 1 start symbol S là 1 phần tử của tập nonterminal, 1 tập hợp production rules cho phép chuyển đổi A -> w với A là nonterminal và w là 1 string của terminal and nonterminal or epsilon(empty string)
+
+Metasyntax là syntax mà mô tả syntax của ngôn ngữ
+
+=> Sau cùng sinh ra output là 1 parse tree or error message
+
+-> Generative Grammar
+1 ngôn ngữ cũng chỉ là 1 set các string follow rule nên để xác định 1 language, ta chỉ cần xđ string có được chấp nhận bởi language đó.
+K chỉ áp dụng cho lập trình, các ngôn ngữ tự nhiên cũng có generative grammar
+
+Generative grammar là thứ describes syntax of a programming language
+
+--> Các quy tắc của generative grammar:
+S -> A|B|C  là  S -> A; S -> B; S -> C
+S -> (A)  là  S -> (; S -> A; S -> )
+
+Khi đã có grammar quy tác như trên thì ta có thể dựa vào grammar của ngôn ngữ đó để biểu diễn 1 expression được viết bởi ngôn ngữ đó dưới dạng 1 cây parse tree. Grammar phải đủ tốt để khi gặp 1 expression admitted bởi ngôn ngữ đó sẽ chỉ sinh ra 1 parse tree duy nhất, nếu sinh > 1 thì grammar đó gọi là ambiguous, ngược lại là unambiguous
+Ta có thể khử ambiguous bằng cách thêm các symbol như trong slide UNIT3 làm.
+Để check 1 grammar là ambiguous hay không phải viết thử ở từng bước nó có chặt chẽ không
+
+--> Derivation: mỗi bước ta thay thế dần nonterminal thành 1 ký tự khác được gọi là 1 bước suy dẫn(derivation step). Khi tất cả là terminal thì đó là 1 string of language
+
+Khi parsing alg luôn chọn leftmost nonterminal or rightmost nonterminal để thay thế thì gọi là leftmost derivation hay rightmost derivation
+
+--> Recursion: là quá trình trên nhưng trong grammar có recursive
+Có left recursion, right recursion và central recursion tùy vị trí recursive
+
+VD1: remove left recursion của grammar
+A->Aa/b
+=> A->bA' và A'->aA'/epsilon => tức ta chỉ cần xác định 2 thông số a và b từ grammar ban đầu là được
+
+VD2: S->ABC; A->Aa/Ad/b; B->Bb/c; C->Cc/g
+S giữ nguyên
+Để xử lý A->Aa/Ad/b, ta quy về dạng trên. Nên nhớ dấu / thực chất là or mà thôi: A->Aa/b và A->Ad/b
+=> A->bA' và A'->aA'/epsilon
+=> A->bA' và A'->dA'/epsilon
+=> Gom lại thành A->bA' và A'->aA'/dA'/epsilon
+
+--> A sentential form là bất cứ string nào chứa non-terminals and/or terminals mà derived được từ start symbol theo đúng rule. Therefore every sentence is a sentential form, but only sentential forms without non-terminals are called sentences (và cũng là 1 set of token of language luôn)
+---> A left-sentential form is a sentential form that occurs in the leftmost derivation of some sentence. Tức ta tách dần ra từ left most cái root ra và mọi string tạo được trong quá trình đó là sentential form.
+VD:
+list -> ids;
+ids -> id, ids | id
+=> id, id, ids là 1 sentential form của language này vì nó là 1 string mà có thể được generate ra đúng
+=> ids, ids không là sentential form vì k tạo ra được
+=> ids, id, id; k là sentential form vì k thể tao ra string đúng thứ tự đó được
+
+--> BT:
+E->E*F|F+E|F
+F->F-F|id
+Ta xét expression id-id+id*id (cứ vẽ bừa 1 cây ngắn nhất dựa vào grammar mà dùng đủ các quy tắc ít nhất 1 lần) sẽ thấy cái tree tạo ra expression trên có phép trừ năm ở thấp nhất r đến cộng r đến nhân
+=> Operator at lower level in tree has higher precedence than operator at upper levels
+URL: https://testbook.com/question-answer/given-the-following-expression-grammar-e--6041e8103a6167b26df5cade
+=> Xây bottom up là được
+
+-> Top down backtrack parsing
+--> Cơ chế nó xây lên cái cây parse tree: ở từng bước nó dùng từng rule của active node để sinh ra tree thỏa mãn biểu thức, nếu sinh ra 1 terminal string, nó sẽ so sánh với biểu thức gốc, nếu k đúng thì cứ thế tìm tiếp các rule khác, tất cả các rule k đúng thì backtrack về làm tương tự mà thôi => duyệt trâu mà
+Active node tức là từng node mà từ đó nó bắt đầu xây được tiếp recursively với active node mới.
+
+--> Có nhiều loại:
+Khi cho 1 grammar và 1 expression có thể sinh ra tree bằng left most or right most derivation(xây ưu tiên nonterminal sang terminal từ trái qua phải hay phải qua trai). Có thể xây cây bằng bottom up or top down. Bottom up là từ biểu thức đã cho, ta suy ngược về root mà thôi. Còn top down là xây từ root về bằng PP trên, duyệt trâu, backtrack và ss liên tục
+
+-> Input token stream là output của scanner cho vào parser rồi cho ra output là parser tree có leaves là tokens
+1 input chỉ ra 1 cây, nếu k ra cây or ra > 1 cây tức cú pháp sai or parser hoạt động sai
+Cả program của ta biến thành 1 tree duy nhất với nút gốc là component Program
+=> VD trong ảnh 1 chương trình xây thành cây như v
+
+Thiết kế nó cũng chỉ là implement mọi component, kiểu gặp keyword nào thì theo sau phải là keyword nào. Cuối cùng lấy được từng component là từng loại khác nhau như TypeDecls, ConstDecls, Block, VarDecls,...
+Khi viết chú ý dùng while khi components loại đó bị lặp lại. Switch case phải bao mọi TH k sót
+
+-> BNF và syntax diagram
+
+
+
 # Other
+-> gcc và C
+Compile gcc: gcc -o test test.c => ./test
+make clean
+make
+
+EOF là ký tự unprintable và có ASCII code là -1. Trong dự án phải check riêng nó
+
+-> Code:
+Trong dự án nếu charCodes[currentChar] mà vào phải EOF thì truy xuất vào -1 sẽ lỗi ngay, để check phải check EOF riêng 
+Mỗi 1 lần chạy getToken là phải return được 1 token, nhưng nếu token k lấy được trong 1 vòng thì phải return getToken() để nó tiếp tục lấy
+
+
+
+# Những thứ lạ ở phần lý thuyết
+Fisrt set không sinh ra prefix, đừng nhìn dấu cộng đằng trước mà nhầm
+
+Khử trái -> LL1
+
+
 
 
 
@@ -38,5 +185,12 @@ EraseNow:
 Cách lưu tên nộp bài báo cáo
 NguyenThuHieu_201947616(2).zip
 Nộp kèm Makefile
+./scanner example1.kpl > result1.txt
+
+
+
+GK lý thuyết: 20/12/2022 kiến thức về parser và scanner. Câu 1: write KPL program làm gì đó. Câu 2: write lexical rule / syntax rule??
+
+
 
 

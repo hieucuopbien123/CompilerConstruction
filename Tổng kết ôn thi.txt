@@ -1,0 +1,194 @@
+B1: 
+5 generation of programming language; HLL and LLL; Syntax and senmantic;
+Compiler, interpreter, assembler, compiler - compiler; compile native code, interpreted lang, hybrid; 
+Compilation phase chung quy lại cũng chỉ có: tách cú pháp, check hợp lệ, convert sang assembly rồi mã máy;
+Interpretation phase: có mỗi read-eval-print loop là xong.
+Bytecode compilation kết hợp 2 loại
+
+B2:
+Phase of compiler cụ thể: Tách từ -> gom thành cụm theo cú pháp -> check nghĩa -> sinh intermediate code -> optimize intermediate -> assembly -> machine code
+Frontend là các quá trình analysis, backend là các quá trình tổng hợp sinh code; Compiler pass;
+Parsing phase: Notation of grammar gồm BNF và Syntax diagram; BNF là 1 meta language biểu diễn grammar of a PL gồm terminal, nonterminal, start symbol, biểu diễn từng cục := <các cục khác>; Syntax diagram là directed graph chỉ cách forming instruction.
+Grammar phải unambiguous, sinh đến khi gặp terminal mới dừng
+Intermedia code là code gần với assembly nhưng dễ optimize hơn, dễ dàng chuyển được qua assembly chuẩn.
+
+B3: 
+Formal language theory coi lang là 1 object toán học và để xđ nó chỉ cần xđ được string nào mà nó admit là được; Symbol and alphabet ký hiệu; String và empty string; Language cũng chỉ là set of string từ 1 alphabet; 
+Chomsky Hierarchy 4 type language từ mơ hồ đén cụ thể, từ tuân thủ chặt chẽ cú pháp đến context free (có vô số TH có ý nghĩa)
+Context free grammar: cơ chế cũng chỉ là nonterminal sinh ra terminal đến hết như bth + Example
+Derivation: cũng chỉ nói về quá trình tách dần từ gốc tới lá theo input. Leftmost hay rightmost cũng chỉ là nói về qtr tách ưu tiên trái hay phải. Derivation tree như trong slide có vài tính chất và ví dụ ez, nếu 1 parent có child là epsilon thì nó là con duy nhất của parent đó.
+Ambiguity và disambiguation: Cú pháp k rõ ràng, đặt tên trùng nhau tạo ra hơn 1 cây thỏa mãn productions rules thì mơ hồ, đặt các biến khác nhau sao cho tạo ra cây chặt chẽ thì k mơ hồ.
+Recursion: Đệ quy trái phải giữa cũng chỉ là việc lặp lại giá trị X ở phía nào mà thôi. Đừng lo nó sẽ ra vô tận vì khi nhét cú pháp thật vào, cây sẽ tới 1 giới hạn r dừng thôi mà; Khử đệ quy trái;
+=> BT khử tất cả đệ quy trái or phải trong 1 cụm production rules
+(Txt:)Sentential form: cho 1 set production rules, tạo dần từ root trở ra được hàng loạt string, mỗi string đó là 1 sentential form của; precedence; 
+Topdown: duyệt trâu và ss check valid; bottom up; 
+
+B4:
+BNF -> Example của nó chính là viết A ::= <> ... <> biểu diễn các expression mà thấy trong lab đó, chứa cả recursive các thứ; EBNF cũng thêm vài quy tắc mà thôi;
+Syntax diagram thì terminal là round box, nonterminal là square box. 
+=> Học KPL
+
+B5: Scanner:
+Token scanner bỏ qua; Finite automata xây từ bottom up là 1 state machine bd bằng state diagram;  
+DFA: deterministic finite automation
+Pb ident và keyword: có 1 bảng lưu table of keyword, đọc từng từ của lexemes và ss với entry bảng là được.
+
+B6: Parser:
+Left parse là sequence of production VD biết expression và production tìm left parse; Tức cái left parse chú trọng vào vc phân tích 1 expression theo đệ quy trái liên tục cho đến khi gặp string thuần thì list các production rule dùng để làm điều đó gọi là left parse của expression đó
+
+Cách check tree có tạo ra 1 expression hay không: active node là nonterminal thì recursive active node, nếu là terminal thì ss rồi backtrack. VD trong slide cách làm của nó là build từ từ trái sang phải r backtrack liên tục rồi ss test các TH, để tránh vô hạn thì nó muốn CFG luôn non left recursive;
+VD cách để tách top down rồi recover slide chuẩn:
+1) S1->aSb
+2) S2->c
+cần tạo ra aacbb. Các bước:
+(q,1,ep,S#) => khởi tạo với state là normal operation, pointer là 1 tức trỏ đúng a, current trống, history xp từ S.
+(q,1,S1,aSb#) => thử từng recursive 1 và lấy cái này
+(q,2,S1a,Sb#) => nhét dần từ history sang current
+(q,2,S1aS1,aSbb#) => đang ở ký tự thứ 2 chờ giá trị a thì đúng là có a thật nên add vào
+(q,2,S1aS1a,Sbb#) 
+(q, 3, S1aS1aS1,aSbbb#)
+(b, 3, S1aS1aS1,aSbbb#) => ký tự tiếp theo là c mà ở đây là a nên backtrack chọn S2
+(q, 3, S1aS1aS2, cbb#) 
+(q, 4, S1aS1aS2c,bb#)
+(q, 5, S1aS1aS2cb,b#)
+(q, 6, S1aS1aS2cbb,#)
+(t, 6, S1aS1aS2cbb, ep)
+Cứ truyền dần sang stack, sai thì backtrack lại thôi
+Recover thì đổi s1s1s2 là 112 ez
+
+Token encoding -> setlaw biểu diễn dãy token dạng số.
+
+B7: 
+Predictive Parser đoán dùng production nào mà k cần backtrack duyệt trâu dựa vào k lookAhead token, LL1; Để áp dụng, grammar phải non left recursive và k có 2 right side nào có chung common prefix => khử left đệ quy immediate => khử mọi left recursion ẩn; Qtr hơn là phải left factored, VD slide (các cục or có cùng prefix thì cho phần sau ra biến riêng là được);
+Predictive parser có: stack + parse table -> nhận input cho ra output stream.
+ParseTable + VD slide
+Tạo parse table có mỗi 1 quy tăc + (2 quy tắc follow first bên dưới); Tập Follow và First chỉ chứa terminal symbol
+Tìm First(X) 2 quy tắc: xem mọi production từ X + các production có first là nonterminal có thể empty thì nhảy tiếp First(các cái bên phải). Tìm First của mọi symbol.
+Tìm Flollow(X) đúng 2 quy tắc: tìm follow của 1 cái thì nhìn vào các ký tự sau trong production có nó + chú ý epsilon. Là ký tự kết thúc thì là dấu dollar. 
+=> Từ 2 tập tạo parse Table theo cách chuẩn: 2 quy tắc cơ bản, tập first xây bảng + dùng tập follow khi có epsilon => VD chuẩn: chú ý cách xây hàng và cột đầu tiên của bảng (bỏ qua epsilon)
+
+B8: 
+LL(k) Grammar: Left-to-right, leftmost derivation, k input; top-down; LL(k) is deterministic CFG; xây được parse table thì là LL(k) grammar, lang có nó là LL(k) language.
+Xác định số k trong LL(k) từ CFG: Ta cứ đếm từ từ là được. KPL is LL2. VD: A->xn|xm|y; B->z|k => là LL(2) vì A cần tới 2 ký tự tiếp theo mới biết được là dùng cái nào
+Left factor LL(k) để có LL(n) với n<k => VD slide biến đổi từ ký tự thứ 2 mà giống nhau thành 1 loại ký tự nonterminal mới
+
+
+
+
+
+Cần bs: 
+Thuần thục KPL
+
+
+
+
+Break mind: 
+Compiler chuyển HLL thành assembly hợp ngữ hay basic instruction như x86 ASM
+Assembler chuyển hợp ngữ thành machine code mã máy hay ngôn ngữ máy hay opcode là các bit 0 1 thực sự
+=> Các compiler thg chứa cả assembler và chuyển 1 phát thành mã máy luôn
+
+Interpreter vẫn phải có tiền xử lý scanner và parser đằng trước r thành 1 chương trình có thể cho vào interpreter chứ kp cho trực tiếp code HL vào
+Compiler chỉ sinh error sau khi scan toàn bộ program khác với interpreter
+
+Compiler pass là quá trình compiler chạy qua 1 lần program: single pass là chạy qua 1 lần r kết thúc nên thg yêu câu có đầy đủ mọi thứ hết r; multipass là kiểu chạy loop vô tận chỉ thỏa mãn đk gì đó kết thúc loop mới dừng, tức là compiler phải giữ toàn bộ program trong memory trong suốt quá trình dài
+
+BFT chính là cái cục biểu diễn grammar mà ta nhìn vào để tạo parser đó
+
+Production rule là nói tới các rule từ cha sinh ra con VD: A -> B
+
+Để khử đệ quy trái ẩn, ta phải tự nhìn ra và thế vào biến thành immediate left recursion.
+VD: S -> Aa|b và A -> Sc|d => thế vào S -> Sca|da|b
+
+Tổng kết các bước tạo parse table: 
+Input: CFG
+Loại bỏ left recursion: bằng cách chuyển sang right recursion
+Sử dụng left factoring: nhiều OR cùng prefix thì gom các cái bên phải vào 1 biến
+
+Tìm firstset: 
+firstset của terminal symbol là chính nó
+Xét từng non-terminal symbol X, chỉ lấy tất cả rule mà X là vế trái: symbol đầu tiên là terminal thì lấy luôn, symbol đầu tiên là nonterminal thì derive dần dần từng production rule. Nếu có rỗng thì có thể lấy tiếp symbol bên cạnh. Nếu tất cả bên phải đều có thể rỗng (hoặc có | epsilon) thì rỗng cũng trong firstset
+
+Tìm follow set: 
+Xét tất cả rule có ký tự X nằm ở vế phải và check 3 điều kiện:
+- Đằng sau ký tự đó là terminal thì lấy luôn
+- Đằng sau là nonterminal thì first của đằng sau là follow cái đằng trước. Đằng sau mà có rỗng thì có thể cả ký tự bên cạnh. Nếu X là vị trí cuối or các cái đằng sau đều có thẻ null, thì follow của nó chứa cả follow của nonterminal symbol bên trái
+- Nếu ở cuối or các cái bên phải đều có thể null thì sẽ có cả ký tự $. (Bị đệ quy quay lại thì bỏ - ký tự epsilon kbh xuất hiện)
+
+Tạo parse table:
+Hàng là mọi terminal string trừ epsilon kết thúc bằng $
+Cột theo thứ tự là nonterminal string - terminal string - #
+Ô có terminal-terminal thì push, ô cuối là accept
+Ô có nonterminal + terminal thì: 
+  Nonterminal mà first set k chứa rỗng thì check terminal symbol nào thuộc firstset sẽ chọn cái production rule có thể sinh ra nó là được
+  Nonterminal mà chứa rỗng vẫn làm tương tự bước trên nhưng các cái thuộc follow set sẽ điền X -> epsilon
+Các ô còn lại là error
+
+
+
+Hiểu các hàm viết trong C nx
+
+
+
+BT: 
+1) 
+Program first;
+Var n : Integer;
+    i1 : Integer;
+    i2 : Integer;
+    temp : Integer;
+    res : Integer;
+    val : Integer;
+Begin
+  res := 1;
+  n := ReadI;
+  For i1 := 0 To n-1 Do
+    For i2 := 0 To n-1 Do
+      Begin
+        temp := i1*n+i2;
+        val := ReadI;
+        If i1 <= i2 Then
+          If val != 0 Then res := 0;
+      End
+  Call WriteI(res);
+End.
+
+2) Left factored + non left recursive
+void compileParams(void) {
+  while(lookAhead->tokenType == SB_LPAR){
+    eat(SB_LPAR);
+    compileParam();
+    compileParams2();
+    eat(SB_RPAR);
+  }
+}
+
+3) 
+void readIdentKeyword(void) {
+  int count = 0;
+  Token* token = makeToken(TK_IDENT, lineNo, colNo);
+  if(currentChar != EOF && (charCodes[currentChar] == CHAR_LETTER)){
+    if(count < 15) { 
+      token->string[count] = tolower((char)currentChar);
+      count++;
+    }
+    readChar();
+  } else {
+    error(ERR_INVALIDSYMBOL, lineNo, colNo);
+  }
+  while(currentChar != EOF && (charCodes[currentChar] == CHAR_LETTER || charCodes[currentChar] == CHAR_DIGIT || charCodes[currentChar] == CHAR_UNDERSCORE)){
+    token->string[count] = (char)currentChar;
+    count++;
+    readChar();
+  }
+  if(count > MAX_IDENT_LEN){
+    error(ERR_IDENTTOOLONG, token->lineNo, token->colNo);
+    return token;
+  }
+  token->string[count] = '\0';
+  TokenType tempType = checkKeyword(token->string);
+  if(tempType != TK_NONE){
+    token->tokenType = tempType;
+  }
+  return token;
+}
+

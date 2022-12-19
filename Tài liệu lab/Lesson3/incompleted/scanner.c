@@ -130,19 +130,35 @@ Token* getToken(void) {
   case CHAR_LETTER: return readIdentKeyword();
   case CHAR_DIGIT: return readNumber();
   case CHAR_PLUS: 
-    token = makeToken(SB_PLUS, lineNo, colNo);
-    readChar(); 
+    readChar();
+    if ((currentChar != EOF) && (charCodes[currentChar] == CHAR_EQ)) {
+      readChar();
+      token = makeToken(SB_ASSIGN_PLUS, lineNo, colNo);
+    } else token = makeToken(SB_PLUS, lineNo, colNo);
     return token;
-  case CHAR_MINUS:
-    token = makeToken(SB_MINUS, lineNo, colNo);
-    readChar(); 
+  case CHAR_MINUS: 
+    readChar();
+    if ((currentChar != EOF) && (charCodes[currentChar] == CHAR_EQ)) {
+      readChar();
+      token = makeToken(SB_ASSIGN_SUBTRACT, lineNo, colNo);
+    } else token = makeToken(SB_MINUS, lineNo, colNo);
     return token;
   case CHAR_TIMES:
-    token = makeToken(SB_TIMES, lineNo, colNo);
-    readChar(); 
+    readChar();
+    if ((currentChar != EOF) && (charCodes[currentChar] == CHAR_EQ)) {
+      readChar();
+      token = makeToken(SB_ASSIGN_TIMES, lineNo, colNo);
+    } else token = makeToken(SB_TIMES, lineNo, colNo);
     return token;
   case CHAR_SLASH:
-    token = makeToken(SB_SLASH, lineNo, colNo);
+    readChar();
+    if ((currentChar != EOF) && (charCodes[currentChar] == CHAR_EQ)) {
+      readChar();
+      token = makeToken(SB_ASSIGN_DIVIDE, lineNo, colNo);
+    } else token = makeToken(SB_SLASH, lineNo, colNo);
+    return token;
+  case CHAR_MODULE:
+    token = makeToken(SB_MODULE, lineNo, colNo);
     readChar(); 
     return token;
   case CHAR_LT:
@@ -282,6 +298,10 @@ void printToken(Token *token) {
   case SB_PERIOD: printf("SB_PERIOD\n"); break;
   case SB_COMMA: printf("SB_COMMA\n"); break;
   case SB_ASSIGN: printf("SB_ASSIGN\n"); break;
+  case SB_ASSIGN_PLUS: printf("SB_ASSIGN_PLUS\n"); break;
+  case SB_ASSIGN_DIVIDE: printf("SB_ASSIGN_DIVIDE\n"); break;
+  case SB_ASSIGN_TIMES: printf("SB_ASSIGN_TIMES\n"); break;
+  case SB_ASSIGN_SUBTRACT: printf("SB_ASSIGN_SUBTRACT\n"); break;
   case SB_EQ: printf("SB_EQ\n"); break;
   case SB_NEQ: printf("SB_NEQ\n"); break;
   case SB_LT: printf("SB_LT\n"); break;
@@ -291,6 +311,7 @@ void printToken(Token *token) {
   case SB_PLUS: printf("SB_PLUS\n"); break;
   case SB_MINUS: printf("SB_MINUS\n"); break;
   case SB_TIMES: printf("SB_TIMES\n"); break;
+  case SB_MODULE: printf("SB_MODULE\n"); break;
   case SB_SLASH: printf("SB_SLASH\n"); break;
   case SB_LPAR: printf("SB_LPAR\n"); break;
   case SB_RPAR: printf("SB_RPAR\n"); break;
