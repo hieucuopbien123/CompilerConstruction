@@ -18,9 +18,9 @@ Chomsky Hierarchy 4 type language từ mơ hồ đén cụ thể, từ tuân th�
 Context free grammar: cơ chế cũng chỉ là nonterminal sinh ra terminal đến hết như bth + Example
 Derivation: cũng chỉ nói về quá trình tách dần từ gốc tới lá theo input. Leftmost hay rightmost cũng chỉ là nói về qtr tách ưu tiên trái hay phải. Derivation tree như trong slide có vài tính chất và ví dụ ez, nếu 1 parent có child là epsilon thì nó là con duy nhất của parent đó.
 Ambiguity và disambiguation: Cú pháp k rõ ràng, đặt tên trùng nhau tạo ra hơn 1 cây thỏa mãn productions rules thì mơ hồ, đặt các biến khác nhau sao cho tạo ra cây chặt chẽ thì k mơ hồ.
-Recursion: Đệ quy trái phải giữa cũng chỉ là việc lặp lại giá trị X ở phía nào mà thôi. Đừng lo nó sẽ ra vô tận vì khi nhét cú pháp thật vào, cây sẽ tới 1 giới hạn r dừng thôi mà; Khử đệ quy trái;
+Recursion: Đệ quy trái phải giữa cũng chỉ là việc lặp lại giá trị X ở phía nào mà thôi. Đừng lo nó sẽ k ra vô tận vì khi nhét cú pháp thật vào, cây sẽ tới 1 giới hạn r dừng thôi mà; Khử đệ quy trái;
 => BT khử tất cả đệ quy trái or phải trong 1 cụm production rules
-(Txt:)Sentential form: cho 1 set production rules, tạo dần từ root trở ra được hàng loạt string, mỗi string đó là 1 sentential form của; precedence; 
+(Txt:)Sentential form: cho 1 set production rules, tạo dần từ root trở ra được hàng loạt string, mỗi string đó là 1 sentential form của cây; precedence; 
 Topdown: duyệt trâu và ss check valid; bottom up; 
 
 B4:
@@ -31,7 +31,7 @@ Syntax diagram thì terminal là round box, nonterminal là square box.
 B5: Scanner:
 Token scanner bỏ qua; Finite automata xây từ bottom up là 1 state machine bd bằng state diagram;  
 DFA: deterministic finite automation
-Pb ident và keyword: có 1 bảng lưu table of keyword, đọc từng từ của lexemes và ss với entry bảng là được.
+Pb ident và keyword: có 1 bảng lưu table of keyword, đọc từng từ của lexemes và ss với entry bảng bằng binary search là đc.
 
 B6: Parser:
 Left parse là sequence of production VD biết expression và production tìm left parse; Tức cái left parse chú trọng vào vc phân tích 1 expression theo đệ quy trái liên tục cho đến khi gặp string thuần thì list các production rule dùng để làm điều đó gọi là left parse của expression đó
@@ -61,24 +61,22 @@ Token encoding -> setlaw biểu diễn dãy token dạng số.
 B7: 
 Predictive Parser đoán dùng production nào mà k cần backtrack duyệt trâu dựa vào k lookAhead token, LL1; Để áp dụng, grammar phải non left recursive và k có 2 right side nào có chung common prefix => khử left đệ quy immediate => khử mọi left recursion ẩn; Qtr hơn là phải left factored, VD slide (các cục or có cùng prefix thì cho phần sau ra biến riêng là được);
 Predictive parser có: stack + parse table -> nhận input cho ra output stream.
-ParseTable + VD slide
+ParseTable + VD slide.
+
+*****
 Tạo parse table có mỗi 1 quy tăc + (2 quy tắc follow first bên dưới); Tập Follow và First chỉ chứa terminal symbol
 Tìm First(X) 2 quy tắc: xem mọi production từ X + các production có first là nonterminal có thể empty thì nhảy tiếp First(các cái bên phải). Tìm First của mọi symbol.
 Tìm Flollow(X) đúng 2 quy tắc: tìm follow của 1 cái thì nhìn vào các ký tự sau trong production có nó + chú ý epsilon. Là ký tự kết thúc thì là dấu dollar. 
 => Từ 2 tập tạo parse Table theo cách chuẩn: 2 quy tắc cơ bản, tập first xây bảng + dùng tập follow khi có epsilon => VD chuẩn: chú ý cách xây hàng và cột đầu tiên của bảng (bỏ qua epsilon)
+*****
 
 B8: 
 LL(k) Grammar: Left-to-right, leftmost derivation, k input; top-down; LL(k) is deterministic CFG; xây được parse table thì là LL(k) grammar, lang có nó là LL(k) language.
-Xác định số k trong LL(k) từ CFG: Ta cứ đếm từ từ là được. KPL is LL2. VD: A->xn|xm|y; B->z|k => là LL(2) vì A cần tới 2 ký tự tiếp theo mới biết được là dùng cái nào
+Xác định số k trong LL(k) từ CFG: Ta cứ đếm từ từ là được. KPL is LL2. VD: A->xn|xm|y; B->z|k => là LL(2) vì A cần tới 2 ký tự tiếp theo mới biết được là dùng cái production rule nào
+VD: A->xn|xm|y; B->z|k => là LL(2) vì A cần tới 2 ký tự tiếp theo mới biết được là dùng cái nào
 Left factor LL(k) để có LL(n) với n<k => VD slide biến đổi từ ký tự thứ 2 mà giống nhau thành 1 loại ký tự nonterminal mới
-
-
-
-
-
-Cần bs: 
 Thuần thục KPL
-
+Hiểu các hàm viết trong C
 
 
 
@@ -99,6 +97,7 @@ Production rule là nói tới các rule từ cha sinh ra con VD: A -> B
 Để khử đệ quy trái ẩn, ta phải tự nhìn ra và thế vào biến thành immediate left recursion.
 VD: S -> Aa|b và A -> Sc|d => thế vào S -> Sca|da|b
 
+******
 Tổng kết các bước tạo parse table: 
 Input: CFG
 Loại bỏ left recursion: bằng cách chuyển sang right recursion
@@ -107,6 +106,8 @@ Sử dụng left factoring: nhiều OR cùng prefix thì gom các cái bên ph�
 Tìm firstset: 
 firstset của terminal symbol là chính nó
 Xét từng non-terminal symbol X, chỉ lấy tất cả rule mà X là vế trái: symbol đầu tiên là terminal thì lấy luôn, symbol đầu tiên là nonterminal thì derive dần dần từng production rule. Nếu có rỗng thì có thể lấy tiếp symbol bên cạnh. Nếu tất cả bên phải đều có thể rỗng (hoặc có | epsilon) thì rỗng cũng trong firstset
+
+(First set của X có epsilon nếu mọi cái bên phải của X đều có thể là null)
 
 Tìm follow set: 
 Xét tất cả rule có ký tự X nằm ở vế phải và check 3 điều kiện:
@@ -122,14 +123,11 @@ Cột theo thứ tự là nonterminal string - terminal string - #
   Nonterminal mà first set k chứa rỗng thì check terminal symbol nào thuộc firstset sẽ chọn cái production rule có thể sinh ra nó là được
   Nonterminal mà chứa rỗng vẫn làm tương tự bước trên nhưng các cái thuộc follow set sẽ điền X -> epsilon
 Các ô còn lại là error
+=> Chú ý có nhiều OR thì chỉ chọn 1 mà thôi, cả ký tự kết thúc $ cũng phải viết, k cần tìm của mấy cái terminal string cũng được. First set cái A là follow của cái B thì chú ý null k tính mà hãy quan sát nó có thể null để nhảy sang ký tự sau được hay không
 
 
 
-Hiểu các hàm viết trong C nx
-
-
-
-BT: 
+Giải đề midterm:
 1) 
 Program first;
 Var n : Integer;
@@ -191,4 +189,24 @@ void readIdentKeyword(void) {
   }
   return token;
 }
+
+
+Các dạng bài tập:
+Xác định 1 production rules có disambiguous hay ambiguous: Dạng này k có cách làm chi tiết, ta tạo ra 1 expression chứa mọi operation ít nhất 1 lần và biểu diễn nó theo production rule, nếu biểu diễn mà thấy nhiều options khả thi thì đó là ambiguity. Thg thì ambiguity gây ra khi production rules có cùng nonterminal ở vế trái nhưng có nhiều options ở vế phải. Ta thử đổi thứ tự dùng các production rules đó nếu vẫn ra được expression thì là ambiguous.
+
+Remove left recursion, khử đệ quy trái ẩn: Chú ý giá trị ban đầu có thể ta k dùng epsilon, cả dấu nữa cũng nguy hiểm
+
+Viết alg bằng KPL
+
+Convert từ expression ra parser tree qua production rule và ngược lại (bottom up, top down): Cách bottom up ok nhưng cô sẽ k cho dùng, cách top down thử sai k thể làm được nếu chưa có công cụ gì
+
+Dùng top down để biểu diễn left parser của 1 expression dựa vào production rules bằng sequence of configurations, bao gồm cả việc khử non left recursive trong production rules từ đầu trước, rồi recover: Để tìm left parse có thể dùng cách bottom up bên trên nhưng dùng cách này mới là chuẩn. Cách này là cách thô sơ nhất
+Start symbol phải tự nghĩ ra dựa vào operation thực hiện ngoài cùng
+
+Implement predictive parse, bao gôm khử left recursion, left factoring, tìm first set, tìm follow set, tạo parser table, tạo left parse of expression dựa vào parser table: Sẽ k có tác dụng với grammar k là LL(1), lúc vẽ tree từ bảng thì vẽ gọn vô
+
+Tìm k trong LL(k) dựa vào set các production rules: ez
+Chứng minh 1 cái là LL1 bằng quy tắc
+
+Transformation grammar from LLk to LLn với n < k: ez
 
