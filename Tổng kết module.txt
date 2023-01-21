@@ -3,6 +3,10 @@ Compiler Construction
 
 
 # Basic
+CFG có ký hiệu sigma là terminal string, delta là nonterminal string, start symbol là S, production rule là P.
+BNF biểu diễn grammar tương ứng với syntax diagram. Còn parser tree là biểu diễn 1 expression cụ thể.
+1 toán tử có precedence lớn hơn 1 toán tử khác thì trong expression tree, nó phải được thực hiện trước. Khi vẽ cây ra sẽ thấy thứ tự thực hiện có thể k được như expression và buộc phải thực hiện theo thứ tự đó.
+
 Programming language's source code -> machine code. VD: jcc, gcc
 
 int a; => 3 token(từ tố) int, a và ; là smallest sequence of letter có ý nghĩa trong 1 programming language. Để phân tích ta phải scan code trái phải trên dưới để tách code thành từng đơn vị nhỏ nhất là token.
@@ -19,7 +23,9 @@ Compiler-compiler là compiler generator. Không phải là 1 loại compiler ha
 Output of a compiler is called object code
 
 -> Tránh nhầm: 
-Programmer -> (Preprocessor)indexer(có thể coi là nằm ngoài bước compile) -> scanner/tokenizer(lexical) -> parser(syntax check tùy vào grammar của ngôn ngữ) -> senmatic analyzer(type check, ngữ nghĩa) -> intermediate code generator -> optimizer -> code generator -> thành assembly (và đi qua assembler thành machine code - ngoài compiler)
+Programmer -> (Preprocessor)indexer(có thể coi là nằm ngoài bước compile) -> scanner/tokenizer(lexical) -> parser(syntax check tùy vào grammar của ngôn ngữ) -> senmatic analyzer(type check, ngữ nghĩa) -> intermediate code generator -> optimizer -> code generator -> thành assembly (và đi qua assembler thành machine code - ngoài compiler) => 
+
+Preprocessor có thể làm công việc là thay thế conditional marco hay các biến hằng số vào đúng vị trí => 
 
 Ngoài ra còn có linker để link các thư viện và loader để load ct vào máy tính sau khi thành mã máy
 Còn có mấy cái lạ như profiler, debugger.
@@ -28,6 +34,7 @@ Còn có mấy cái lạ như profiler, debugger.
 Vì intepreter đọc từng dòng với cơ chế read-eval-print tức đọc từng dòng rồi evaluate rồi in ra rồi lặp lại. Điều này làm analyze nhanh hơn nhưng tốc độ exec chậm hơn. Bytecode là sự kết hợp của compilation và intepretation với ý tưởng xóa bỏ read-eval-print loop của intepretation để cải thiện hiệu suất. Cơ chế:
 source ---bytecode compiler---> bytecodes ---bytecode interpreter<---> VM runtime
 => Vc compile tạo ra bytecode trước rồi dùng intepreter chạy từng dòng sẽ loại bỏ nhược điểm của 2 cái để vừa compile nhanh, vừa chạy nhanh nhưng máy chạy phải có đúng cái loại VM runtime của nó để chạy. Ứng dụng hỗ trợ gọi là hybrid. Thực tế interpreter implement cái VM và cho nó là 1 phần của compiler, cách này được dùng phổ biến để làm cho compiler độc lập với máy tính, kiểu portability, nếu không thì mỗi khi chạy máy phải hỗ trợ trước VM của nó à.
+=> hay
 
 Tức có 2 phiên bản của intepreter, khi có ai hỏi nó làm gì thì luôn phải phân biệt 2 cái này:
 1) Intepreter độc lập thì: source -> scanner -> parser -> intepreter có thể execute ngay 
@@ -47,9 +54,9 @@ Lexemes là instance của tokens: while, if, else, +, .
 
 # KPL(Kyoto Procedure Language)
 Là 1 ngôn ngữ lập trình khá giống pascal. Compiler của nó cũng tên là KPL. Ngôn ngữ đơn giản dùng để học compiler. Cần viết chương trình C làm compiler cho KPL.
-Mọi ký tự printable đều dùng được cặp '' để biểu diễn single word. VD: ''' bd dấu ' còn ' ' không biểu diễn dâu space vì nó k printable. Dấu . là end program
+Mọi ký tự printable đều dùng được cặp '' để biểu diễn single word. VD: ''' bd dấu ' còn ' ' không biểu diễn dâu space vì nó k printable. Dấu . là end program => 
 
-KPL k có số âm nhưng vẫn có thể gán số âm k vi phạm quy tắc trong cây BNF theo rule 41 KPL Grammar in BNF slide 10 của chapter 4, nên ta phải tự throw exception khi compile nó
+KPL k có số âm nhưng vẫn có thể gán số âm k vi phạm quy tắc trong cây BNF theo rule 41 KPL Grammar in BNF slide 10 của chapter 4, nên ta phải tự throw exception khi compile nó =>
 
 
 
@@ -65,7 +72,7 @@ Vẫn phải lọc số, bỏ qua mở ngoặc đóng ngoặc và các stopword 
 
 # Scanner
 State diagram of finite automata(state machine)
-val = 10*val + i ---scanner---> phân loại val(ident), =(assign), 10(tk_number), *(sb_time), +(add), i(ident)
+val = 10*val + i ---scanner---> phân loại val(ident), =(assign), 10(tk_number), *(sb_time), +(add), i(ident) =>
 
 => Cơ chế tổng quan: Ta thg bỏ qua indexer vì nó k nằm trong compiler, đầu tiên là lexical analysis thực hiện bởi scanner để convert HLL sang chuỗi các token, output tiếp tục send tới parser for syntax analysis check cú pháp xây cây.
 
@@ -184,18 +191,10 @@ Khử trái -> LL1
 
 
 
-
-
 EraseNow:
 Cách lưu tên nộp bài báo cáo
 NguyenThuHieu_201947616(2).zip
 Nộp kèm Makefile
 ./scanner example1.kpl > result1.txt
-
-
-
-GK lý thuyết: 20/12/2022 kiến thức về parser và scanner. Câu 1: write KPL program làm gì đó. Câu 2: write lexical rule / syntax rule??
-
-
 
 
