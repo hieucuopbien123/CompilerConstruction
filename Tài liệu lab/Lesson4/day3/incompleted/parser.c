@@ -43,7 +43,6 @@ void compileProgram(void) {
   enterBlock(program->progAttrs->scope);
 
   eat(SB_SEMICOLON);
-
   compileBlock();
   eat(SB_PERIOD);
 

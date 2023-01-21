@@ -158,6 +158,11 @@ Khi viết chú ý dùng while khi components loại đó bị lặp lại. Swit
 
 
 
+# Senmatic analyzer:
+Nó xây 1 symbol table chứa thông tin của các object trong source code. Từ đó check các điều kiện như undeclaration, duplication params. Dùng singly linked list for symbol table
+
+
+
 # Other
 -> gcc và C
 Compile gcc: gcc -o test test.c => ./test
