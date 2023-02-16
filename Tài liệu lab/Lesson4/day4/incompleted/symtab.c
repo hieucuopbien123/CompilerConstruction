@@ -33,6 +33,13 @@ Type* makeCharType(void) {
   return type;
 }
 
+Type* makeStringType(int x) {
+  Type* type = (Type*) malloc(sizeof(Type));
+  type->typeClass = TP_STRING;
+  type->length = x;
+  return type;
+}
+
 Type* makeArrayType(int arraySize, Type* elementType) {
   Type* type = (Type*) malloc(sizeof(Type));
   type->typeClass = TP_ARRAY;
@@ -64,6 +71,7 @@ int compareType(Type* type1, Type* type2) {
 void freeType(Type* type) {
   switch (type->typeClass) {
   case TP_INT:
+  case TP_STRING:
   case TP_CHAR:
     free(type);
     break;

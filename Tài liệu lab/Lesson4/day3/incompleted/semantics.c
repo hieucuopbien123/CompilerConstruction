@@ -14,6 +14,8 @@ extern Token* currentToken;
 
 Object* lookupObject(char *name) {
   // TODO
+  // Tìm 1 object ở trong scope hiện tại. Duyệt mọi list của nó lấy ra object. 
+  // Nếu k tìm thấy thì tìm tiếp trong globalObjectList
 }
 
 void checkFreshIdent(char *name) {

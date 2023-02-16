@@ -65,6 +65,7 @@ char *tokenToString(TokenType tokenType) {
   case TK_NUMBER: return "a number";
   case TK_CHAR: return "a constant char";
   case TK_EOF: return "end of file";
+  case TK_STRING: return "token string";
 
   case KW_PROGRAM: return "keyword PROGRAM";
   case KW_CONST: return "keyword CONST";
@@ -92,6 +93,10 @@ char *tokenToString(TokenType tokenType) {
   case SB_PERIOD: return "\'.\'";
   case SB_COMMA: return "\',\'";
   case SB_ASSIGN: return "\':=\'";
+  case SB_ASSIGN_PLUS: return "\'+=\'";
+  case SB_ASSIGN_SUBTRACT: return "\'-=\'";
+  case SB_ASSIGN_DIVIDE: return "\'/=\'";
+  case SB_ASSIGN_TIMES: return "\'*=\'";
   case SB_EQ: return "\'=\'";
   case SB_NEQ: return "\'!=\'";
   case SB_LT: return "\'<\'";
@@ -101,6 +106,7 @@ char *tokenToString(TokenType tokenType) {
   case SB_PLUS: return "\'+\'";
   case SB_MINUS: return "\'-\'";
   case SB_TIMES: return "\'*\'";
+  case SB_MODULE: return "\'%\'";
   case SB_SLASH: return "\'/\'";
   case SB_LPAR: return "\'(\'";
   case SB_RPAR: return "\')\'";

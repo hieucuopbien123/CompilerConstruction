@@ -3,7 +3,7 @@
  * @author Huu-Duc Nguyen
  * @version 1.0
  */
-
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "semantics.h"
@@ -112,22 +112,48 @@ Object* checkDeclaredLValueIdent(char* name) {
 
 void checkIntType(Type* type) {
   // TODO
+  if (type->typeClass != TP_INT)
+    error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+}
+
+void checkIntType2(Type* type) {
+  // TODO
+  if (type->typeClass != TP_INT)
+    error(ERR_MODUL_ONLY_INTEGER, currentToken->lineNo, currentToken->colNo);
 }
 
 void checkCharType(Type* type) {
   // TODO
+  if (type->typeClass != TP_CHAR)
+    error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
 }
 
 void checkBasicType(Type* type) {
-  // TODO
+  if (type->typeClass != TP_INT && type->typeClass != TP_CHAR)
+    error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
 }
 
 void checkArrayType(Type* type) {
   // TODO
+  if (type->typeClass != TP_ARRAY)
+  error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
 }
 
 void checkTypeEquality(Type* type1, Type* type2) {
   // TODO
+  if (type1->typeClass != type2->typeClass) {
+    error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+  } else if (type1->typeClass == TP_ARRAY) {
+    checkTypeEquality(type1->elementType, type2->elementType);
+    if (type1->arraySize != type2->arraySize)
+      error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+  }
 }
 
-
+void checkTypeIsCharArray(Type* type){
+  if(type->typeClass == TP_ARRAY){
+    if(type->elementType->typeClass == TP_CHAR){
+      error(ERR_STRING_USED, currentToken->lineNo, currentToken->colNo);
+    }
+  }
+}

@@ -138,7 +138,7 @@ void compileFuncDecl(void) {
   eat(KW_FUNCTION);
   eat(TK_IDENT);
   compileParams();
-  eat(SB_COLON);
+  eat(SB_COLON);SB_ASSIGN_PLUS
   compileBasicType();
   eat(SB_SEMICOLON);
   compileBlock();

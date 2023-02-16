@@ -411,23 +411,81 @@ void compileStatement(void) {
 
 Type* compileLValue(void) {
   // TODO: parse a lvalue (a variable, an array element, a parameter, the current function identifier)
-  Object* var;
-  Type* varType;
+  Object* var = NULL;
+  Type* varType = NULL;
 
   eat(TK_IDENT);
-  // check if the identifier is a function identifier, or a variable identifier, or a parameter  
+  // check if the identifier is a function identifier, or a variable identifier, or a parameter
   var = checkDeclaredLValueIdent(currentToken->string);
-  if (var->kind == OBJ_VARIABLE)
-    compileIndexes();
+  if (var->kind == OBJ_VARIABLE){
+    if (var->varAttrs->type->typeClass == TP_ARRAY) {
+      varType = compileIndexes(var->varAttrs->type);
+    }
+    else{
+      varType = var->varAttrs->type;
+    }
+  } else if (var->kind == OBJ_FUNCTION) {
+    varType = var->funcAttrs->returnType;
+  } else if (var->kind == OBJ_PARAMETER){
+    varType = var->paramAttrs->type;
+  } else {
+    error(ERR_INVALID_LVALUE,currentToken->lineNo, currentToken->colNo);
+  }
 
   return varType;
 }
 
 void compileAssignSt(void) {
-  // TODO: parse the assignment and check type consistency
-  compileLValue();
-  eat(SB_ASSIGN);
-  compileExpression();
+  // // TODO: parse the assignment and check type consistency
+  Type *lValueType     = NULL;
+  Type *expressionType = NULL;
+  
+  lValueType = compileLValue();
+
+  switch(lookAhead->tokenType){
+    case SB_ASSIGN: // gán giá trị biểu thức cho 1 biến bth
+      eat(SB_ASSIGN);
+      expressionType = compileExpression();
+      if(expressionType->typeClass == TP_STRING){
+        if(lValueType->typeClass == TP_ARRAY && lValueType->elementType->typeClass == TP_CHAR){
+          if(expressionType->length > lValueType->arraySize){
+            error(ERR_EXCESS_STRING, currentToken->lineNo, currentToken->colNo);
+          }
+        } else {
+          error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+        }
+      } else {
+        checkTypeEquality(lValueType, expressionType);
+      }
+      break;
+    case SB_ASSIGN_PLUS:
+      checkTypeIsCharArray(lValueType);
+      eat(SB_ASSIGN_PLUS);
+      expressionType = compileExpression();
+      checkTypeEquality(lValueType, expressionType);
+      break;
+    case SB_ASSIGN_SUBTRACT:
+      checkTypeIsCharArray(lValueType);
+      eat(SB_ASSIGN_SUBTRACT);
+      expressionType = compileExpression();
+      checkTypeEquality(lValueType, expressionType);
+      break;
+    case SB_ASSIGN_DIVIDE:
+      checkTypeIsCharArray(lValueType);
+      eat(SB_ASSIGN_DIVIDE);
+      expressionType = compileExpression();
+      checkTypeEquality(lValueType, expressionType);
+      break;
+    case SB_ASSIGN_TIMES:
+      checkTypeIsCharArray(lValueType);
+      eat(SB_ASSIGN_TIMES);
+      expressionType = compileExpression();
+      checkTypeEquality(lValueType, expressionType);
+      break;
+    default:
+      error(ERR_INVALID_STATEMENT, lookAhead->lineNo, lookAhead->colNo);
+      break;
+  }
 }
 
 void compileCallSt(void) {
@@ -474,13 +532,18 @@ void compileForSt(void) {
   eat(TK_IDENT);
 
   // check if the identifier is a variable
-  checkDeclaredVariable(currentToken->string);
+  Object *var = checkDeclaredVariable(currentToken->string);
+  checkBasicType(var->varAttrs->type); // là int or char
 
   eat(SB_ASSIGN);
-  compileExpression();
+  Type *expressionTypeAssign = compileExpression();
+  checkBasicType(expressionTypeAssign);
+  checkTypeEquality(var->varAttrs->type, expressionTypeAssign);
 
   eat(KW_TO);
-  compileExpression();
+  Type *expressionTypeTo = compileExpression();
+  checkBasicType(expressionTypeTo);
+  checkTypeEquality(expressionTypeAssign, expressionTypeTo);
 
   eat(KW_DO);
   compileStatement();
@@ -489,7 +552,8 @@ void compileForSt(void) {
 void compileArgument(Object* param) {
   // TODO: parse an argument, and check type consistency
   //       If the corresponding parameter is a reference, the argument must be a lvalue
-  compileExpression();
+  Type *argvType = compileExpression();
+  checkTypeEquality(argvType, param->paramAttrs->type);
 }
 
 void compileArguments(ObjectNode* paramList) {
@@ -497,11 +561,19 @@ void compileArguments(ObjectNode* paramList) {
   switch (lookAhead->tokenType) {
   case SB_LPAR:
     eat(SB_LPAR);
-    compileArgument();
+    compileArgument(paramList->object);
 
     while (lookAhead->tokenType == SB_COMMA) {
       eat(SB_COMMA);
-      compileArgument();
+      paramList = paramList->next;
+      if(paramList != NULL){
+        compileArgument(paramList->object);
+      } else {
+        error(ERR_PARAMETERS_ARGUMENTS_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+      }
+    }
+    if (paramList->next != NULL) {
+      error(ERR_PARAMETERS_ARGUMENTS_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
     }
     
     eat(SB_RPAR);
@@ -534,7 +606,8 @@ void compileArguments(ObjectNode* paramList) {
 
 void compileCondition(void) {
   // TODO: check the type consistency of LHS and RSH, check the basic type
-  compileExpression();
+  Type *exp1 = compileExpression();
+  checkBasicType(exp1);
 
   switch (lookAhead->tokenType) {
   case SB_EQ:
@@ -559,11 +632,16 @@ void compileCondition(void) {
     error(ERR_INVALID_COMPARATOR, lookAhead->lineNo, lookAhead->colNo);
   }
 
-  compileExpression();
+  Type *exp2 = compileExpression();
+  checkBasicType(exp2);
+
+  checkTypeEquality(exp1, exp2);
 }
 
 Type* compileExpression(void) {
   Type* type;
+  int x = 0;
+  x = lookAhead->length;
   
   switch (lookAhead->tokenType) {
   case SB_PLUS:
@@ -576,48 +654,42 @@ Type* compileExpression(void) {
     type = compileExpression2();
     checkIntType(type);
     break;
+  case TK_STRING: 
+    eat(TK_STRING);
+    
+    type = makeStringType(x);
+    break;
   default:
     type = compileExpression2();
   }
+  
   return type;
 }
 
 Type* compileExpression2(void) {
-  Type* type1;
-  Type* type2;
+  Type* type;
 
-  type1 = compileTerm();
-  type2 = compileExpression3();
-  if (type2 == NULL) return type1;
-  else {
-    checkTypeEquality(type1,type2);
-    return type1;
-  }
+  type = compileTerm();
+  compileExpression3();
+
+  return type;
 }
 
-
-Type* compileExpression3(void) {
-  Type* type1;
-  Type* type2;
+void compileExpression3(void) {
+  Type* type;
 
   switch (lookAhead->tokenType) {
   case SB_PLUS:
     eat(SB_PLUS);
-    type1 = compileTerm();
-    checkIntType(type1);
-    type2 = compileExpression3();
-    if (type2 != NULL)
-      checkIntType(type2);
-    return type1;
+    type = compileTerm();
+    checkIntType(type);
+    compileExpression3();
     break;
   case SB_MINUS:
     eat(SB_MINUS);
-    type1 = compileTerm();
-    checkIntType(type1);
-    type2 = compileExpression3();
-    if (type2 != NULL)
-      checkIntType(type2);
-    return type1;
+    type = compileTerm();
+    checkIntType(type);
+    compileExpression3();
     break;
     // check the FOLLOW set
   case KW_TO:
@@ -635,7 +707,6 @@ Type* compileExpression3(void) {
   case KW_END:
   case KW_ELSE:
   case KW_THEN:
-    return NULL;
     break;
   default:
     error(ERR_INVALID_EXPRESSION, lookAhead->lineNo, lookAhead->colNo);
@@ -643,7 +714,6 @@ Type* compileExpression3(void) {
 }
 
 Type* compileTerm(void) {
-  // TODO: check type of Term2
   Type* type;
 
   type = compileFactor();
@@ -667,6 +737,12 @@ void compileTerm2(void) {
     eat(SB_SLASH);
     type = compileFactor();
     checkIntType(type);
+    compileTerm2();
+    break;
+  case SB_MODULE:
+    eat(SB_MODULE);
+    type = compileFactor();
+    checkIntType2(type);
     compileTerm2();
     break;
     // check the FOLLOW set
@@ -696,15 +772,17 @@ void compileTerm2(void) {
 Type* compileFactor(void) {
   // TODO: parse a factor and return the factor's type
 
-  Object* obj;
-  Type* type;
+  Object* obj = NULL;
+  Type* type = NULL;
 
   switch (lookAhead->tokenType) {
   case TK_NUMBER:
     eat(TK_NUMBER);
+    type = makeIntType();
     break;
   case TK_CHAR:
     eat(TK_CHAR);
+    type = makeCharType();
     break;
   case TK_IDENT:
     eat(TK_IDENT);
@@ -713,14 +791,23 @@ Type* compileFactor(void) {
 
     switch (obj->kind) {
     case OBJ_CONSTANT:
+      type = makeIntType();
+      type->typeClass = obj->constAttrs->value->type; // lấy type từ object
       break;
     case OBJ_VARIABLE:
-      compileIndexes();
+      if (obj->varAttrs->type->typeClass != TP_ARRAY) {
+        type = obj->varAttrs->type;
+      }
+      else {
+        type = compileIndexes(obj->varAttrs->type);
+      }
       break;
     case OBJ_PARAMETER:
+      type = obj->paramAttrs->type;
       break;
     case OBJ_FUNCTION:
-      compileArguments();
+      compileArguments(obj->funcAttrs->paramList);
+      type = obj->funcAttrs->returnType;
       break;
     default: 
       error(ERR_INVALID_FACTOR,currentToken->lineNo, currentToken->colNo);
@@ -736,11 +823,21 @@ Type* compileFactor(void) {
 
 Type* compileIndexes(Type* arrayType) {
   // TODO: parse a sequence of indexes, check the consistency to the arrayType, and return the element type
-  while (lookAhead->tokenType == SB_LSEL) {
-    eat(SB_LSEL);
-    compileExpression();
-    eat(SB_RSEL);
+  Type *indexType = NULL;
+
+  if(lookAhead->tokenType == SB_LSEL){
+    while (lookAhead->tokenType == SB_LSEL) {
+      eat(SB_LSEL);
+      checkArrayType(arrayType);
+      indexType = compileExpression();
+      checkIntType(indexType);
+      eat(SB_RSEL);
+      arrayType = arrayType->elementType;
+    }
+    checkBasicType(arrayType);
   }
+
+  return arrayType;
 }
 
 int compile(char *fileName) {

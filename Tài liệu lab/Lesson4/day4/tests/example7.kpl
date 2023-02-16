@@ -1,0 +1,16 @@
+Program Example9; (*Example 9*)
+Var 
+  i : integer;
+  str : array (. 10 .) of char;
+
+Begin
+i := i %4;
+  i += 4;
+  i *= 4;
+  i /= 4;
+  i -= 4;
+  str := "Ha noi"; (* senmatic error *)
+  
+
+
+End. (* Example 9 *)

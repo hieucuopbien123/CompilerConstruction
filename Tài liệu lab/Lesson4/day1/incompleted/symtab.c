@@ -42,28 +42,34 @@ Type* makeArrayType(int arraySize, Type* elementType) {
 
 Type* duplicateType(Type* type) {
   // TODO
+  // Tạo 1 biến type mới cùng loại với biến Type* truyền vào
 }
 
 int compareType(Type* type1, Type* type2) {
   // TODO
+  // So sánh trả ra true hay false rằng 2 type có giống nhau hay không (k thể ss ref mà phải ss từng trường)
 }
 
 void freeType(Type* type) {
   // TODO
+  // giải phóng biến lưu type
 }
 
 /******************* Constant utility ******************************/
 
 ConstantValue* makeIntConstant(int i) {
   // TODO
+  // Tạo ra biến int constant
 }
 
 ConstantValue* makeCharConstant(char ch) {
   // TODO
+  // Tạo ra biến char constant
 }
 
 ConstantValue* duplicateConstantValue(ConstantValue* v) {
   // TODO
+  // Tạo ra biến có type và value trùng với 1 biến truyền vào
 }
 
 /******************* Object utilities ******************************/
@@ -89,42 +95,52 @@ Object* createProgramObject(char *programName) {
 
 Object* createConstantObject(char *name) {
   // TODO
+  // Tạo ra 1 object có trường name trùng với name truyền vào, khai báo cả type và attr là 1 hằng số
 }
 
 Object* createTypeObject(char *name) {
   // TODO
+  // Tạo ra 1 object tương tự nhưng type là OBJ_TYPE
 }
 
 Object* createVariableObject(char *name) {
   // TODO
+  // Tạo ra 1 object tương tự nhưng type là OBJ_VARIABLE
 }
 
 Object* createFunctionObject(char *name) {
   // TODO
+  // Tạo ra 1 object tương tự nhưng type là OBJ_FUNCTION
 }
 
 Object* createProcedureObject(char *name) {
   // TODO
+  // Tạo ra 1 object tương tự nhưng type là OBJ_PROCEDURE
 }
 
 Object* createParameterObject(char *name, enum ParamKind kind, Object* owner) {
   // TODO
+  // Tạo ra 1 object tương tự nhưng type là OBJ_PARAMETER nhưng kind và function được truyền vào như này
 }
 
 void freeObject(Object* obj) {
   // TODO
+  // giải phóng object đủ loại, VD loại OBJ_CONSTANT phải giải phóng 2 trường value và constAtts,..
 }
 
 void freeScope(Scope* scope) {
   // TODO
+  // Gọi freeObjectList
 }
 
 void freeObjectList(ObjectNode *objList) {
   // TODO
+  // Duyệt cái object list rồi free từng object bên trong
 }
 
 void freeReferenceList(ObjectNode *objList) {
   // TODO
+  // Cho cái list này mọi node ref tới null chứ k free bộ nhớ cho từng node object như bên trên
 }
 
 void addObject(ObjectNode **objList, Object* obj) {
@@ -143,6 +159,7 @@ void addObject(ObjectNode **objList, Object* obj) {
 
 Object* findObject(ObjectNode *objList, char *name) {
   // TODO
+  // Trả ra object là 1 node trong current list, trùng trường name là được
 }
 
 /******************* others ******************************/

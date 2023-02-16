@@ -92,7 +92,6 @@ int main() {
 
     exitBlock();
 
-
   exitBlock();
   printObject(symtab->program,0);
   cleanSymTab();
