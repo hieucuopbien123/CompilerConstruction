@@ -1,0 +1,285 @@
+Slide 1:
+-> Quy trình:
+Source code --Compiler--> x86 ASM --x86 assembler--> op code (hay object code) --Linker+Loader--> Chạy ra machine code chương trình
+Interpreter là 1 phần của compiler thì compiler chứa intepreter bên trong với cơ chế compiled trước ra bytecode như trên. Sau đó sang máy nào thì intepreter có thể chạy tiếp với tốc độ cao. Như v cái compiler đó là portable có thể mang sang bất cứ máy nào. Vừa compile nhanh vừa chạy nhanh
+
+Slide2:
+-> Compiler phase:
+Scanner: từ source thành token string
+Parse: xây tree check syntax
+Senmatic analyzer: check ngữ nghĩa, check type
+Intermediate code gen: gần với target code là mã máy
+Optimizer
+Code Generator: Sinh assembly
+
+Compiler pass
+
+Slide3:
+-> Formal language theory: Symbol, alphabet, string, language, token
+-> CFG: Terminal, nonterminal, start symbol, production rule
+Derivation, Recursion, 
+
+Slide 4: 
+-> Có 2 grammar notation: 
+BNF: Terminal, nonterminal, bd dạng <> := <> + <>
+Sinh ra >1 parse tree là unambiguous. qt là sinh liên tục đến khi gặp terminal
+EBNF thêm rule
+-> Syntax diagram: sơ đồ nối. Square là nonterminal, round box là terminal
+
+Slide 5:
+State diagram of finite automata
+Lexeme
+
+Slide 6:
+Left parse string 
+-> Thuật toán top down parsing: bắt đầu từ S, gán active, sinh recurve, k đươc thì backtrack lại node trước đó, làm từ trái sang.
+ĐK: non left recursive
+
+Slide 7: 
+-> Predictive Parser: LL(k) k cần backtrack
+ĐK: non left recursive + k tồn tại 2 production chung prefix (đương nhiên non ambiguous)
+Immediate left-recursion, left recursion lồng nhau
+Left factoring
+
+-> Parsing table
+Xây parse table LL(1) từ CFG
+Tìm first set và follow set
+ 
+TransSlide 8:
+Sentential form: bất cứ string nào chứa non-terminals and/or terminals mà derived được từ start symbol theo đúng rule. 
+Xác định loại LL(k) của 1 CFG
+KPL là LL2
+Nhận biết LL1: First(mọi ký tự đầu) đều khác nhau. Nếu 1 ký tự từ A có thể rỗng thì First(mọi ai) phải khác Follow(A)
+from grammar để giảm LL(k)
+
+Slide 9: 
+Recursive descent parsing: là qtr parse LL(k) dùng trong parser để xây parser tree top down theo cái BNF. Cứ gọi compile<> recursive lồng nhau đến khi gặp terminal thì thôi. Nếu có nhiều rule 1 node thì check trước bằng lookAhead 1 symbol
+ĐK: no left recursive, phải là LL(k) nếu k có thể gây infinite loop
+
+Slide 10: Senmatic analysis:
+-> Find error of type => hàng loạt thuật ngữ
+Xây symbol table gắn identifier với các attribute rồi từ đó dùng senmatic analysis. Implement symbol table phải dùng dynamic data structure vì cần phải tìm kiếm và insert nhanh như HashTable, Linear list
+
+Typecheck: toán tử chỉ làm với số, 2 vế phải cùng kiểu, index array là int 
+TypeChecking có thẻ là static và dynamic. Static type checker hoàn thành ở compile time, xây dựa vào Type Expression
+Type Expression là các kiểu mà Ct hỗ trợ có thể là Basic Type or Type Constructor, gắn với 1 cái tên là Type Names
+Basic Type là kiểu cơ bản, còn Type Constructor tự định kiểu mới
+Pointer(T) với T là 1 type expression gọi là pointer to an object of type T
+Function ký hiệu là D: R với D là doamin, R là phạm vi. Vd trong pascal có function f(a,b: char): integer
+Type System: tập hợp các rule gán type expression cho các phần program. Type Checker implements type system
+Language có strongly typed tức compiler check được hết để lúc chạy k còn lỗi nx
+
+-> Syntax-directed translation:
+Attributes gắn với terminal và nonterminal symbol biểu diễn thông tin senmatic của symbol đó. 
+Synthesized attribute: attributes được lấy từ children => VD val trong Expression vì nó tính từ val của các con. VD: E->A+B tức là E.val = A.val + B.val thì val là synthesized attribute vì val của cha được tính từ con
+Inherited atribute: attributed được lấy từ parent or sibling => VD Type of VarList vì VarList -> id tức là id.type = VarList.type tức type của con là lấy từ cha truyền cho
+
+Syntax Directed Definition: Lúc này cũng làm công việc typechecking
+Symbol gắn với attribute
+Production gắn với senmatic rules (senmatic rule mô tả chi tiết nó. Vd: T -> char thì senmatic rule mô tả rõ atribute là T.type := char)
+=> Xây 1 annotated parse tree sao cho mỗi node trong cây gắn với giá trị 1 attribute
+
+Có senmatic rule là type coercion rule giúp TypeConversion
+
+-> Block of code
+Language is block structured khi block có thể nested
+=> Để implement thì các lệnh insert, lookup, delete chỉ thao tác với lệnh khai báo gần nhất. Mỗi scope 1 table riêng. Khi enter identifier mới, ta sẽ phải xđ dùng symbol table nào
+
+-> Thực tế để 1 identifier được insert vào symbol table, chỉ khi code bắt đầu sử dụng nó về mặt syntax để đảm bảo về scope từng block độc lập chứ nó k được thêm vào ngay từ lexical đâu
+
+-> Relative Address là thông tin của bộ nhớ chứa offset từ base zero address. Loader lo phần này
+Global var "offset" luôn lưu trữ next available address, ban đầu là 0, 1 identifier mới vào thì offset tăng dần lên
+
+
+
+Slide 11:
+Biểu diễn intermediate code: syntax tree, postfix notation, three address code.
+
+Three address code
+Có nhiều loại statement
+*Procedure call: param x; call p, n; return y;
+
+*Syntax Directed Definition vào Three Address Code => dạng bài biểu diễn phức tạp có .code và .place
+
+Implementation of Three Address Statement: lập ra cái bảng từ các statement TAC bth
+
+*Intermediate code for declaration. VD x -> real là x.type = real, x.width = 8 là khai báo kiểu real chiếm 8 byte memory
+
+Gọi nested procedure sẽ tạo ra 1 bảng mới
+*Procedures of semantic rules => hàng loạt các hàm mới và giải thích từng cái
+
+Addressing array element: 1 và 2 dimensional array
+
+Boolean expression biểu diễn 1 0 or bằng jump code
+*Translate boolean expression thành dạng senmatic rule => lại thêm .true và .false
+*Và Flow of Control statement khá tương tự => lại thêm loạt lệnh
+
+
+
+Bài 12: Code Optimization
+Peephold optimization là kiểu tối ưu 1 đoạn code ngắn bỏ các phần thừa
+
+Basic Block + Control Flow Graph chứa nhiều basic block có các mũi tên nối đến nhau thể hiện flow của ct
+Predecessor và successor block
+
+Common Expression Eliminate là giảm bớt câu lệnh thừa giống nhau chạy nh lần bằng cách tái sử dụng biến đã xử lý
+Constant Propagation thay vì lưu vào biến 1 constant, tối ưu bằng cách fix cứng vào luôn
+
+Partition Algorithm for Basic Block: 1 chuỗi 3-address statement đầu vào và đầu ra là 1 list các basic block, mỗi 3-address statement gắn với đúng 1 block
+Với 1 list các alg như v, đầu tiên phải tìm leader của từng basic block là câu lệnh đầu tiên or ngay sau goto là câu lệnh goto -> Vẽ Flow Graph là cái biểu diễn instruction bằng control flow edges -> áp dụng các thuật toán elimination
+=> Vc áp dụng các thuật toán là 1 dạng bài dài xem trong slide
+
+Dead code elimination, bỏ phần code sau return kbh chạm tới
+
+
+
+Bài 13: Code generation
+Input có thể là Immediate code và cho ra output là machine code or assembly, có thể vẫn cho ra intermediate code với virtual machine chạy tiếp
+
+Stack calculator: tính toán cho ra target code cần stack calculator
+Code buffer: chứa execution code
+Stack: storing intermediate result
+
+Register trong stack calculator: PC is current execution code buffer, base is base address of data area, top is top stack element
+
+Stack frame là phần mem gán cho các function, procedure, mainmem. VD 1 function có nhiều Stack frames trong Stack chính
+
+Các loại trong data stack: RV, DL, RA, SL
+Các loại instruction set: LA, LV, LC, LI, INT, DCT, J => như 1 bộ lệnh assembly mới phải học lại
+
+
+
+
+Ôn tập đề của Quân: 
+Code optimizer chia program thành basic block
+Hỏi các câu lệnh trong code generation của stack calculator
+Postfix notation = reverse polish notation khi bd intermediate code
+
+Copy Value CV
+Load Indirect LI
+Load Constant LC
+Add AD
+Store ST => state thực hiện khi assignment
+False Jump FJ
+New Line WLN
+Halt HL
+
+Compiler có fast execution time như debug nhanh
+Common subexpression elimination: loại bỏ subexpression trùng VD x = a + b; y = a + b; thì thay vì tạo y tính lại, ta dùng lại x là được. Còn gọi là Available expression analysis
+Dead code elimination là viết ra nhưng xử lý chán chê mà chả dùng hoặc code kbh được chạy do if else luôn true chẳng hạn. Còn gọi là live variable analysis tức check 1 biến có thực sự được chạy và dùng không
+Lexical là để check token hợp lệ hay không, scanner sẽ thực hiện tách từ và store. Trong khi syntax analysis là check cú pháp hợp lệ không để xây parser tree VD cú pháp function hay câu lệnh gán phải đúng. Cuối cùng senmatic mới check type các kiểu
+
+Optimizing compiler khiến ct chạy nhanh và chiếm ít tài nguyen hơn => éo hiểu
+
+Grammar là LL(k) nếu k ambiguous, non left recursive, cần k ký tự để bt ký tự hiện tại
+Câu 14 thì là d vì b kp LL(k) ta luôn cần biết hết ký tự mới biết chọn rule nào chứ k fix cứng là biết bnh ký tự kế tiếp thì chọn được xây từ từ
+
+Interpreter k sinh object program từ source program
+Interpreter như 1 cái translator, chạy chậm hơn compiled program
+
+Câu 16: 
+Three address code là từng câu lệnh basic như truy cập assembly. Nếu chưa đủ basic và phải tách ra thì k là three address code. 
+VD t[i] = 1 + 2 k là three address code vì làm 2 nv truy cập vào bộ nhớ t[i] và xử lý 1 + 2
+VD t[i] = 1 thì đúng
+
+Câu 17: no error
+
+Câu 18: Comment, empty statement, declaration, control flow statement(if, while, for, switch) k sinh ra executable code khi compile => chuẩn nhất là declaration vì nó k xử lý logic gì cả
+
+Câu 19: d
+
+Cau 20: Basic block là cụm các lệnh nhỏ, mỗi cục có 1 lệnh lead: khởi đầu, goto trỏ tới, sau goto kể cả có là if => 8 basic blocks ở bài này
+
+Câu 35: 
+Tại sao lại thích optimize code tại intermediate code vì:
+Vì nó giúp độc lập với platform vì tận dụng được vc intermediate code là đã compile và code này chạy được trên mọi platform (independent platform)
+Vì analyze nhanh hơn và tiện hơn
+Dễ maintain hơn
+Dễ debug vì gần với original source code, nếu để thành machine code sẽ rất khó debug
+=> Điều qtr nhất chắc chắn là performance r
+
+Câu 34: annotated parser tree khác parser tree bth ở chỗ là mỗi node sẽ có rõ các attribute kiểu T.value, T.type ở từng node ấy
+
+Câu 33: Control Flow Graph nữa => số đỉnh là số basic block, số arc là số lượng cung nối trong flow chạy
+
+32: output of lexical analyzer là sequence of token chứ kp sequence of lexemes
+
+31: intermediate code tưởng cao siêu, thật ra chỉ là viết lại three address code thôi
+
+29: parser tree is a graph representation of a derivation. Syntax tree gần giống parser tree nhưng ta k học ở đây
+
+28: B
+=> Vì mỗi cạnh k được vượt quá 1024, 32 như cách ta mà ta tưởng tượng vì đó là mã theo 1 chiều đó
+mà ta đang truy cập 4 byte 1 vì có k*4 tức là ta đang chơi int nên là B
+
+26: Annotated Parse Tree lưu thông tin cái production rule, nó cụ thể hơn parser tree tức cũng lưu thông tin về syntax nhưng có thể thêm .val hay .type được nhưng chủ yếu thỏa mãn syntax tho
+Symbol table lưu chuẩn hơn thông tin về biến và attribute của nó và về sau dùng nó để type check các thứ cho senmatic analyzer nên 1 biến luôn đầy đủ mọi attribute liên quan
+
+25: chomsky normal form là mô tả:
+A->BC với cả 3 là nonterminal string
+A->a với A là nonterminal string, a là terminal string, tính cả empty string
+
+22: CFG được ra mắt trong bài parser và chỉ dùng check cú pháp, tức CFG k the check được lỗi dùng 1 biến trước khi khai báo giá trị
+
+50D
+
+49: 
+Strength reduction là kiểu viết cái tương đương nhưng nhẹ hơn, cheaper machine instruction
+
+48:
+FLEX là Fast lexcial analyzer
+BISON dùng cho parser generator
+
+47: Mỗi phép tính là 1 biến trung gian lưu
+45A vì mỗi cái D.pow là tính còn từ cha và sibling thôi
+
+44: Activation record gọi là stack frame, 1 function có thể có nhiều stack frame, nó chưa các thanh ghi RV DL RA SL, lưu param value, và giá trị biến local
+
+43: Symbol table thì mỗi identifier lưu 1 entries kèm loạt attributes, nó được sinh ra trong analysis pass of compiler
+Nó klq gì tới assembler nên nó k thể xử lý assembler directives
+
+42: lexical analyzer đọc source code character by character
+
+38: replace runtime with compile time computation gọi là constant folding
+
+
+
+
+
+
+
+Tổng hợp lại:
+Lexical: scanner, finite state diagram, check cú pháp
+Syntax: parser, predictive parser, parse table, LLK, CFG, BNF, Syntax diagram, parser tree, left factor, First, Follow set, Recursive descent parsing, topdown
+Senmatic: type checking, annotated parse tree, có inherrited attribute và sythesized attribute, Symbol table, Syntax Directed Translation
+Intermediate: Three address code | syntax tree | postfix notation
+Optimization: Basic block, Flow graph, Dead code, Strength reduction
+Code generator: Stack calculator
+
+
+Đề của cô:
+
+10 B => VarList -> id => id.type = Varlist.type
+
+
+12 B => Right parse thì ta viết bottom up, khi đó tương đương dùng rightmost derivation + lấy ngược lại
+13 D => PC k point vào top of stack mà point vào current instruction đang được exec bởi CT, nó cũng lưu next instruction address. Top of stack là T, base là thanh ghi B mà
+14 sửa đề
+
+Tham số 1
+q là normal
+b là backtrack
+t là terminaet
+
+22 D => sai phải là B chứ, khai báo éo gì ở đây làm gì có three address code
+23 D => thực tế cứ thấy k LL(1) nhìn k thấy confused chỗ nào trùng khi render là được
+
+25 B => Chỉ cần nhớ vài cái Dead code, constant folding, common subexpression elimination, strength reduction
+
+27 D => số lượng token thì chia nhỏ, tính cả trùng chứ, cứ 1 cụm thành 1 token ok như "fasfsdf" là 1 token, mà := là 1 token, mỗi dấu phẩy hay 1 identifier là 1 token
+
+
+29 A => truyền tham chiếu thì phải có VAR ở trước param đó trong hàm
+30 A => bố nó dùng top down nhưng do có lookAhead nên cx là predictive parser
+
+

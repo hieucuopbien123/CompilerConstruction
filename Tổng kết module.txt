@@ -16,11 +16,11 @@ Lexical analysis -> scanner, tokenizer (tách(từ preprocessor) và place token
 Syntax analysis -> parser(grammar product) (token sau khi phân tích sẽ đi vào parser, chỉ có 1 unique hợp lệ cho set of input token và cho ra parse tree cũng là only one unique, nếu ra > 1 parse tree báo lỗi).
 Senmatic analysis -> parse tree đi qua thì sẽ check các lỗi senmatic như out of range của mảng, duplicate identifier biến, truyền sai kiểu dữ liệu vào hàm, casting error, undeclare. Đó là các lỗi mà kp syntax mà là về ngữ nghĩa, thường là lỗi warning, khó tìm hơn syntax error.
 Code optimizer
-Code generator -> convert output cái trên ra machine code. 3 cái trên là đặc trưng của compiler còn code generator phụ thuộc vào người sản xuất, cấu hình máy.
+Code generator -> convert output cái trên ra machine code. 3 cái trên là đặc trưng của compiler còn code generator phụ thuộc vào người sản xuất, cấu hình máy. Cái này có thể chỉ ra assembly khi tách riêng assembler khỏi code generator
 
 Compiler-compiler là compiler generator. Không phải là 1 loại compiler hay intepreter bth. Còn có assembler là thứ convert từ assembly ra machine code thực sự.
 
-Output of a compiler is called object code
+Output of a compiler is called object code => object code thực chất là machine code cơ, đang phân tích là nó kẹp cả assembler vào
 
 -> Tránh nhầm: 
 Programmer -> (Preprocessor)indexer(có thể coi là nằm ngoài bước compile) -> scanner/tokenizer(lexical) -> parser(syntax check tùy vào grammar của ngôn ngữ) -> senmatic analyzer(type check, ngữ nghĩa) -> intermediate code generator -> optimizer -> code generator -> thành assembly (và đi qua assembler thành machine code - ngoài compiler) => 
@@ -30,10 +30,10 @@ Preprocessor có thể làm công việc là thay thế conditional marco hay c�
 Ngoài ra còn có linker để link các thư viện và loader để load ct vào máy tính sau khi thành mã máy
 Còn có mấy cái lạ như profiler, debugger.
 
--> Bytecode tương đương với real machine opcode nhưng đúng hơn là compiled instruction trên virtual machine, phân biệt với opcode là của real machine. 
+-> Bytecode tương đương với real machine opcode nhưng đúng hơn là compiled instruction trên virtual machine, phân biệt với opcode(hay object code) là của real machine. 
 Vì intepreter đọc từng dòng với cơ chế read-eval-print tức đọc từng dòng rồi evaluate rồi in ra rồi lặp lại. Điều này làm analyze nhanh hơn nhưng tốc độ exec chậm hơn. Bytecode là sự kết hợp của compilation và intepretation với ý tưởng xóa bỏ read-eval-print loop của intepretation để cải thiện hiệu suất. Cơ chế:
 source ---bytecode compiler---> bytecodes ---bytecode interpreter<---> VM runtime
-=> Vc compile tạo ra bytecode trước rồi dùng intepreter chạy từng dòng sẽ loại bỏ nhược điểm của 2 cái để vừa compile nhanh, vừa chạy nhanh nhưng máy chạy phải có đúng cái loại VM runtime của nó để chạy. Ứng dụng hỗ trợ gọi là hybrid. Thực tế interpreter implement cái VM và cho nó là 1 phần của compiler, cách này được dùng phổ biến để làm cho compiler độc lập với máy tính, kiểu portability, nếu không thì mỗi khi chạy máy phải hỗ trợ trước VM của nó à.
+=> Vc compile tạo ra bytecode trước rồi dùng intepreter chạy từng dòng sẽ loại bỏ nhược điểm của 2 cái để vừa compile nhanh, vừa chạy nhanh nhưng máy chạy phải có đúng cái loại VM runtime của nó để chạy. Ứng dụng hỗ trợ gọi là hybrid. Thực tế interpreter implement cái VM và cho nó là 1 phần của compiler, cách này được dùng phổ biến để làm cho compiler độc lập với máy tính, kiểu portability. Tức mang compiler đi bất cứ đâu, thích build hay run lúc nào cũng được và đều nhanh
 => hay
 
 Tức có 2 phiên bản của intepreter, khi có ai hỏi nó làm gì thì luôn phải phân biệt 2 cái này:
@@ -149,6 +149,7 @@ URL: https://testbook.com/question-answer/given-the-following-expression-grammar
 -> Top down backtrack parsing
 --> Cơ chế nó xây lên cái cây parse tree: ở từng bước nó dùng từng rule của active node để sinh ra tree thỏa mãn biểu thức, nếu sinh ra 1 terminal string, nó sẽ so sánh với biểu thức gốc, nếu k đúng thì cứ thế tìm tiếp các rule khác, tất cả các rule k đúng thì backtrack về làm tương tự mà thôi => duyệt trâu mà
 Active node tức là từng node mà từ đó nó bắt đầu xây được tiếp recursively với active node mới.
+=> Đang k dùng predictive parser
 
 --> Có nhiều loại:
 Khi cho 1 grammar và 1 expression có thể sinh ra tree bằng left most or right most derivation(xây ưu tiên nonterminal sang terminal từ trái qua phải hay phải qua trai). Có thể xây cây bằng bottom up or top down. Bottom up là từ biểu thức đã cho, ta suy ngược về root mà thôi. Còn top down là xây từ root về bằng PP trên, duyệt trâu, backtrack và ss liên tục
@@ -163,16 +164,19 @@ Khi viết chú ý dùng while khi components loại đó bị lặp lại. Swit
 
 -> BNF và syntax diagram
 
+-> Transform grammar để giảm LL(k)
+VD: A -> ab | ac thì dùng A -> aX và X -> b | c là được
+
 
 
 # Senmatic analyzer:
-Nó xây 1 symbol table chứa thông tin của các object trong source code. Từ đó check các điều kiện như undeclaration, duplication params. Dùng singly linked list for symbol table
+Nó xây 1 symbol table chứa thông tin của các object trong source code. Từ đó check các điều kiện như undeclaration, duplication params. Dùng singly linked list for symbol table, ưu tiên dùng kiểu dynamic type để đảm bảo các thao tác tìm kiếm và ghi nhanh nhất có thể
 
 
 
 # Other
 -> gcc và C
-Compile gcc: gcc -o test test.c => ./test
+Compile gcc 1 file: gcc -o test test.c => ./test
 make clean
 make
 
@@ -181,13 +185,6 @@ EOF là ký tự unprintable và có ASCII code là -1. Trong dự án phải ch
 -> Code:
 Trong dự án nếu charCodes[currentChar] mà vào phải EOF thì truy xuất vào -1 sẽ lỗi ngay, để check phải check EOF riêng 
 Mỗi 1 lần chạy getToken là phải return được 1 token, nhưng nếu token k lấy được trong 1 vòng thì phải return getToken() để nó tiếp tục lấy
-
-
-
-# Những thứ lạ ở phần lý thuyết
-Fisrt set không sinh ra prefix, đừng nhìn dấu cộng đằng trước mà nhầm
-
-Khử trái -> LL1
 
 
 
